@@ -1,4 +1,4 @@
-
+ 
    ///////////////////////////////////////////
   //             © NIEUŻYTEK ROLNY         //
  //                 studios               //
@@ -14,11 +14,12 @@ const byte numReaders = 3;
 
 const byte ssPins[] = {2,3,4};
 const byte resetPin = 8;
+const byte openLed = 6;
 
 MFRC522 mfrc522[numReaders];
 
 // sequence of RFID readers solving puzzle TODO
-const String correctIDs[] = {"ASDASD","ASDASD","ASDASDASD"};
+const String correctIDs[] = {"201853c3","1a2c52c3","a17a9c73"};
 
 String currentIDs[numReaders];
 
@@ -33,6 +34,7 @@ void onSolve() {
   #endif
   // Release the lock
   digitalWrite(lockPin, HIGH);
+  digitalWrite(openLed, HIGH);
 }
  
 void setup() {
@@ -46,6 +48,9 @@ void setup() {
   // Set lock pin as output and secure the lock.
   pinMode(lockPin, OUTPUT);
   digitalWrite(lockPin, LOW);
+  pinMode(openLed, OUTPUT);
+  digitalWrite(openLed, LOW);
+  
 
   // Initialize the SPI bus
   SPI.begin();
@@ -53,7 +58,7 @@ void setup() {
   for(uint8_t i=0; i<numReaders; i++) {
      mfrc522[i].PCD_Init(ssPins[i], resetPin);
      // set antenna gain to max (check if works)
-     //mfrc522[i].PCD_SetAntennaGain(MFRC522::PCD_RxGain::RxGain_max);
+     mfrc522[i].PCD_SetAntennaGain(MFRC522::PCD_RxGain::RxGain_max);
 
      // Dubug info
      Serial.print(F("Reader #"));
@@ -65,7 +70,6 @@ void setup() {
      Serial.print(F(". Version: "));
      mfrc522[i].PCD_DumpVersionToSerial();
 
-     delay(1000);
   }
   Serial.println(F("---- END SETUP ----"));
 }
@@ -79,28 +83,36 @@ void loop() {
   boolean changedValue = false;
   for (uint8_t i=0; i<numReaders; i++) {
     mfrc522[i].PCD_Init();
+//    Serial.print(i);
     String readRFID = "";
     // If sensor detects a tag and is able to read it
     if(mfrc522[i].PICC_IsNewCardPresent() && mfrc522[i].PICC_ReadCardSerial()) {
-//      readRFID = dump_byte_array(mfrc522[i].uid.uidByte, mfrc522[i].uid.size);
       readRFID = "";
-      for ( uint8_t j = 0; j < 4; i++) { // The MIFARE PICCs that we use have 4 byte UID
+      for ( uint8_t j = 0; j < 4; j++) { // The MIFARE PICCs that we use have 4 byte UID
         readRFID.concat(String(mfrc522[i].uid.uidByte[j], HEX)); // Adds the 4 bytes in a single String variable
       }
 
-    if( readRFID != currentIDs[i]) {
-      // Set flag to show that puzzle state has changed
-      changedValue = true;
-      currentIDs[i] = readRFID;
+      if( readRFID != currentIDs[i]) {
+        // Set flag to show that puzzle state has changed
+        changedValue = true;
+        currentIDs[i] = readRFID;
+      }
+
+        // If reading fails to match the corrent ID for this sensor
+//        Serial.println(F("current"));
+//        Serial.println(currentIDs[i]);
+//        Serial.println(F("correct"));
+//        Serial.println(correctIDs[i]);
+      if(currentIDs[i] != correctIDs[i]) {
+        //TODO tutaj można te diody włączać/wyłączać
+        puzzleSolved = false;
+      }
     }
 
-    // If reading fails to match the corrent ID for this sensor
     if(currentIDs[i] != correctIDs[i]) {
       //TODO tutaj można te diody włączać/wyłączać
       puzzleSolved = false;
-      
     }
-
     //HAlt PICC
     mfrc522[i].PICC_HaltA();
     mfrc522[i].PCD_StopCrypto1();
@@ -117,11 +129,13 @@ void loop() {
       Serial.print(F(" detected tag: "));
       Serial.print(currentIDs[i]);
     }
+    
     Serial.println(F("---"));
-  }
-  if(puzzleSolved) {
-    onSolve();
+    Serial.println(puzzleSolved);
+    if(puzzleSolved) {
+      onSolve();
+    }
   }
   //add short delay before next polling sensors
-  // delay(1000);
-}}
+  delay(200);
+}
