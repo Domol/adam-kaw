@@ -1,0 +1,8 @@
+Twoim zadaniem jest sprawienie aby otworzyła sie szafka z napojem, który Cię ogrzeje, grzałka właśnie została włączona.
+Żeby to zrobić musisz użyć programu „locker_terminal”. Jego użycie jest proste i nie powinieneś mieć z tym problemu. 
+Niestety, firma Kodomi nie przyjęła zlecenia z powodu krótkiego terminu i niskiego budżetu. Dlatego musieliśmy znaleźć kogokolwiek do napisania programu. Skutkiem tego są błędy w programie. Musisz naprawić go tak, aby działał i dało nie za jego pomocą otworzyć szafkę. Powodzenia.
+
+[JAK juz program będzie działał]
+Brawo, wydaje się, ze program działa. Żeby otworzyć szafki potrzebował będziesz hasła. Tu przydadzą Ci się umiejętności inwestorskie.
+Na pendrive, który zdobyłeś sa informacje na temat spółki CD projekt twoim zadaniem będzie obliczenie dziennej średniej kroczącej „MA5” spółki cd projekt na dzień 26.03.2021. Jeśli nie wiesz co to MA5 to się wstydź, i użyj słowniczka inwestora (https://pl.m.wikipedia.org/wiki/Średnia_ruchoma )powodzenia.
+

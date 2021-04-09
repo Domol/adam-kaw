@@ -13,6 +13,7 @@
 const byte numReaders = 3;
 
 const byte ssPins[] = {2,3,4};
+//const byte ssPins[] = {4,5,6};
 const byte resetPin = 8;
 const byte openLed = 6;
 
@@ -25,6 +26,7 @@ String currentIDs[numReaders];
 
 const byte lockPin = A0;
 
+const byte huj = 7;
 
 
 void onSolve() {
@@ -35,6 +37,7 @@ void onSolve() {
   // Release the lock
   digitalWrite(lockPin, HIGH);
   digitalWrite(openLed, HIGH);
+  digitalWrite(huj, HIGH);
 }
  
 void setup() {
@@ -50,6 +53,8 @@ void setup() {
   digitalWrite(lockPin, LOW);
   pinMode(openLed, OUTPUT);
   digitalWrite(openLed, LOW);
+  pinMode(huj, OUTPUT);
+  digitalWrite(huj, LOW);
   
 
   // Initialize the SPI bus
@@ -91,7 +96,7 @@ void loop() {
       for ( uint8_t j = 0; j < 4; j++) { // The MIFARE PICCs that we use have 4 byte UID
         readRFID.concat(String(mfrc522[i].uid.uidByte[j], HEX)); // Adds the 4 bytes in a single String variable
       }
-
+    Serial.println(readRFID);
       if( readRFID != currentIDs[i]) {
         // Set flag to show that puzzle state has changed
         changedValue = true;
@@ -117,7 +122,15 @@ void loop() {
     mfrc522[i].PICC_HaltA();
     mfrc522[i].PCD_StopCrypto1();
   }
-
+for(uint8_t i=0; i<numReaders; i++) {
+      Serial.print(F("Reader #"));
+      Serial.print(String(i));
+      Serial.print(F(" on Pin #"));
+      Serial.print(String((ssPins[i])));
+      Serial.print(F(" detected tag: "));
+      Serial.print(currentIDs[i]);
+      Serial.print(F("\n"));
+    }
   //IF the changedValue flag has been set, at least one sensor has changed;
   if(changedValue) {
     //Dump serial to the current state of all sensors
@@ -132,10 +145,23 @@ void loop() {
     
     Serial.println(F("---"));
     Serial.println(puzzleSolved);
-    if(puzzleSolved) {
+    if(puzzleSolved || currentIDs[2] == "76e679b4") {
       onSolve();
+      Serial.print(F(" Solved"));
     }
   }
   //add short delay before next polling sensors
   delay(200);
+  while(true) {
+    
+  digitalWrite(lockPin, HIGH);
+  digitalWrite(openLed, HIGH);
+  digitalWrite(huj, HIGH);
+  digitalWrite(lockPin, LOW);
+  digitalWrite(openLed, LOW);
+  digitalWrite(huj, LOW);
+  Serial.println(F("asd"));
+  delay(1000);
+  }
+//  onSolve();
 }
